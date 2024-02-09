@@ -6,11 +6,25 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel
 from typing import Optional
 import sqlite3
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+# CORS 설정
+origins = [
+    "http://127.0.0.1:5500",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
+
 # SQLite 연결
-conn = sqlite3.connect('sudden-attack.db')
+conn = sqlite3.connect("sudden-attack.db")
 cursor = conn.cursor()
 
 # JWT 설정
@@ -62,8 +76,10 @@ def verify_password(plain_password, hashed_password):
 @app.post("/signup/")
 async def register(user: User):
     hashed_password = hash_password(user.password)
-    cursor.execute('INSERT INTO user (username, email, password, nickname) VALUES (?, ?, ?, ?)',
-                   (user.username, user.email, hashed_password, user.nickname))
+    cursor.execute(
+        "INSERT INTO user (username, email, password, nickname) VALUES (?, ?, ?, ?)",
+        (user.username, user.email, hashed_password, user.nickname),
+    )
     conn.commit()
     return {"message": "User registered successfully"}
 
@@ -71,16 +87,26 @@ async def register(user: User):
 # 로그인 API
 @app.post("/login/")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    cursor.execute('SELECT * FROM user WHERE email=?', (form_data.username,))
+    cursor.execute("SELECT * FROM user WHERE email=?", (form_data.username,))
     user = cursor.fetchone()
     if user and verify_password(form_data.password, user[3]):
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token({"sub": user[1]}, expires_delta=access_token_expires)
+        access_token = create_access_token(
+            {"sub": user[1]}, expires_delta=access_token_expires
+        )
         refresh_token_expires = timedelta(seconds=REFRESH_TOKEN_EXPIRE_SECONDS)
-        refresh_token = create_access_token({"sub": user[1]}, expires_delta=refresh_token_expires)
-        cursor.execute('UPDATE user SET refresh_token=? WHERE email=?', (refresh_token, user[2]))
+        refresh_token = create_access_token(
+            {"sub": user[1]}, expires_delta=refresh_token_expires
+        )
+        cursor.execute(
+            "UPDATE user SET refresh_token=? WHERE email=?", (refresh_token, user[2])
+        )
         conn.commit()
-        return {"access_token": access_token, "token_type": "bearer", "refresh_token": refresh_token}
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "refresh_token": refresh_token,
+        }
     else:
         raise HTTPException(status_code=401, detail="Incorrect email or password")
 
