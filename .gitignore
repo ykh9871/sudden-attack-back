@@ -1,1 +1,5 @@
-/venvs
+# Ignore __pycache__ folders
+__pycache__
+
+# Ignore .idea folder
+.idea
