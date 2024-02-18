@@ -1,0 +1,22 @@
+sudden_attack_backend/
+│
+├── main.py
+├── api/
+│   ├── __init__.py
+│   ├── user/
+│         ├── __init__.py
+│         └── routes.py
+├── app/
+│   ├── __init__.py
+│   └── user/
+│         ├── __init__.py
+│         ├── service/
+│         │   ├── __init__.py
+│         │   └── service.py
+│         ├── repository/
+│         │   ├── __init__.py
+│         │   └── repository.py
+│         └── dto/
+│   	     ├── __init__.py
+│   	     └── dto.py
+└── sudden-attack.db
