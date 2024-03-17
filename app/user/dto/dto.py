@@ -8,7 +8,7 @@ class User(BaseModel):
     nickname: str
     email: str
     password: str
-    occupation: int
+    occupation: str
     refresh_token: Optional[str] = None
 
 
