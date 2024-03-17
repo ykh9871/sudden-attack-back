@@ -12,10 +12,12 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/")
 user_service = UserService()
 user_repository = UserRepository()
 
+
 @router.post("/signup/")
 async def register(user: User):
     user_service.register(user)
     return {"message": "User registered successfully"}
+
 
 @router.post("/login/")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -27,12 +29,13 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         return {
             "access_token": access_token,
             "token_type": "bearer",
-            "username" : user.username,
+            "username": user.username,
             "refresh_token": refresh_token,
         }
     else:
         raise HTTPException(status_code=401, detail="Incorrect email or password")
-    
+
+
 @router.get("/user/info/", response_model=UserInfo)
 async def get_user_info(email: str = Depends(user_service.get_email_from_token)):
     if email:
@@ -44,16 +47,29 @@ async def get_user_info(email: str = Depends(user_service.get_email_from_token))
     else:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+
 @router.post("/user/info/")
-async def update_user_info(user_info_request: UserInfo, email: str = Depends(user_service.get_email_from_token)):
+async def update_user_info(
+    user_info_request: UserInfo, email: str = Depends(user_service.get_email_from_token)
+):
     if email:
-        user_service.update_user_info(email, user_info_request.username, user_info_request.nickname, user_info_request.occupation_name)
+        user_service.update_user_info(
+            email,
+            user_info_request.username,
+            user_info_request.nickname,
+            user_info_request.occupation_name,
+        )
         return {"message": "User information updated successfully"}
     else:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
+
+
 @router.put("/user/password/")
-async def update_user_password(current_password: str, new_password: str, email: str = Depends(user_service.get_email_from_token)):
+async def update_user_password(
+    current_password: str,
+    new_password: str,
+    email: str = Depends(user_service.get_email_from_token),
+):
     user = user_service.authenticate(email, current_password)
     if not user:
         raise HTTPException(status_code=401, detail="Incorrect current password")
@@ -64,9 +80,12 @@ async def update_user_password(current_password: str, new_password: str, email: 
         return {"message": "User password updated successfully"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    
+
+
 @router.delete("/user/withdrawal/")
-async def withdrawal(password: str, email: str = Depends(user_service.get_email_from_token)):
+async def withdrawal(
+    password: str, email: str = Depends(user_service.get_email_from_token)
+):
     # 사용자의 현재 비밀번호를 확인합니다.
     user = user_service.authenticate(email, password)
     if not user:
