@@ -6,4 +6,4 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./sudden-attack.db:/app/sudden-attack.db
+      - .:/app
