@@ -1,13 +1,14 @@
 from fastapi import FastAPI
 from api.user.routes import router as user_router
 from api.group.routes import router as group_router
+from api.board.routes import router as board_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
 app.include_router(user_router)
 app.include_router(group_router)
-
+app.include_router(board_router)
 
 # CORS 설정
 origins = [
