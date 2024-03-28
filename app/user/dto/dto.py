@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
 
 
 class User(BaseModel):
@@ -8,7 +7,7 @@ class User(BaseModel):
     nickname: str
     email: str
     password: str
-    occupation: str
+    occupation: int
     refresh_token: Optional[str] = None
 
 
