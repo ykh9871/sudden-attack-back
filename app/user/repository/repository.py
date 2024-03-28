@@ -17,14 +17,14 @@ class UserRepository:
     def register(self, user: User):
         self.cursor.execute(
             """
-            SELECT id 
+            SELECT occupation_name 
             FROM occupation 
-            WHERE occupation_name = ?
+            WHERE id = ?
             """,
             (user.occupation,),
         )
-        occupation_id = self.cursor.fetchone()
-        if occupation_id:
+        occupation_name = self.cursor.fetchone()
+        if occupation_name:
             hashed_password = self.hash_password(user.password)
             # 검색된 직업 id와 함께 사용자 정보를 삽입하는 쿼리 실행
             self.cursor.execute(
@@ -37,7 +37,7 @@ class UserRepository:
                     user.email,
                     hashed_password,
                     user.nickname,
-                    occupation_id[0],
+                    user.occupation,
                 ),
             )
             self.conn.commit()
